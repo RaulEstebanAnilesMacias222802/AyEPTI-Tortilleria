@@ -36,9 +36,9 @@ class Topbar(ctk.CTkFrame):
         # Cambiar de color los botones
         for index, btn in enumerate(self.buttons):
             if index == selected_index:
-                btn.configure(text_color="yellow")  # Boton seleccionado en amarillo
+                btn.configure(text_color="yellow", font = ("Arial", 20, "bold", "underline"))  # Boton seleccionado en amarillo
             else:
-                btn.configure(text_color="white")   # Restaurar los demas a blanco
+                btn.configure(text_color="white", font = ("Arial", 20, "bold"))   # Restaurar los demas a blanco
 
 
 # Ejecutar la app
