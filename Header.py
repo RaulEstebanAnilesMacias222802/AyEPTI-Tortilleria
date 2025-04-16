@@ -24,7 +24,7 @@ class App(ctk.CTk):
             self.frames[F.__name__] = page
             page.grid(row=0, column=0, sticky="nsew")
 
-        # Mostrar la primera página por defecto
+        # Mostrar la primera pagina por defecto
         self.show_page("VentasPage")
         
     def show_page(self, page_name):
@@ -52,7 +52,7 @@ class Topbar(ctk.CTkFrame):
             self.buttons.append(btn)
 
     def change_page(self, page_name):
-        """Cambia la página activa y actualiza los botones"""
+        """Cambia la pagina activa y actualiza los botones"""
         self.change_page_callback(page_name)
 
         for btn, (_, page) in zip(self.buttons, self.button_names):
@@ -99,14 +99,14 @@ class VentasPage(ctk.CTkFrame):
         carrito_contenido = ctk.CTkLabel(carrito_frame, text="Aquí irán los productos...", text_color="black")
         carrito_contenido.pack(pady=10)
 
-# Página de Inventario
+# Pagina de Inventario
 class InventarioPage(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master, fg_color="white")
         label = ctk.CTkLabel(self, text="Página de Inventario", font=("Arial", 24))
         label.pack(pady=50)
 
-# Página de Reportes
+# Pagina de Reportes
 class ReportesPage(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master, fg_color="white")
