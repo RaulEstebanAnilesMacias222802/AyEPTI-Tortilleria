@@ -40,6 +40,7 @@ class ReportesPage(ctk.CTkFrame):
             height=40
         )
         self.btn_semanal.grid(row=0, column=1, padx=5, pady=20, sticky="nsew")
+        
 
         # --- Frame para la tabla (debajo de los botones) ---
         table_frame = ctk.CTkFrame(self, fg_color="transparent")

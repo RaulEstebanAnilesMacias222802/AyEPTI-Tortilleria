@@ -34,6 +34,7 @@ class App(ctk.CTk):
         frame = self.frames[page_name]
         frame.tkraise()
 
+
 class Topbar(ctk.CTkFrame):
     def __init__(self, master, change_page_callback, **kwargs):
         super().__init__(master, fg_color="#00A14A", height=50, corner_radius=0)
