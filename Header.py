@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from Reportes import ReportesPage
 
 class App(ctk.CTk):
     def __init__(self):
@@ -109,13 +110,6 @@ class InventarioPage(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master, fg_color="white")
         label = ctk.CTkLabel(self, text="Página de Inventario", font=("Arial", 24))
-        label.pack(pady=50)
-
-# Pagina de Reportes
-class ReportesPage(ctk.CTkFrame):
-    def __init__(self, master):
-        super().__init__(master, fg_color="white")
-        label = ctk.CTkLabel(self, text="Página de Reportes", font=("Arial", 24))
         label.pack(pady=50)
 
 # Ejecutar la app
