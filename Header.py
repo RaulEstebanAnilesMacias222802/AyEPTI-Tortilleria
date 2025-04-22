@@ -8,6 +8,7 @@ class App(ctk.CTk):
         
         # Barra superior
         self.top_bar = Topbar(self, self.show_page)
+        self.top_bar.grid_columnconfigure(0, weight=1)
         self.top_bar.grid(row=0, column=0, sticky="nsew")
         
         # Paginas
@@ -38,6 +39,9 @@ class Topbar(ctk.CTkFrame):
 
         self.change_page_callback = change_page_callback
         
+        self.grid(row=0, column=0, sticky="nsew", columnspan=5)
+        self.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
+
         self.logo_label = ctk.CTkLabel(self, text="Tortilleria\nMurisol", font=("Arial", 24, "bold"),
                                        text_color="white", fg_color="transparent", height=40)
         self.logo_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
@@ -47,7 +51,7 @@ class Topbar(ctk.CTkFrame):
         
         for index, (name, page) in enumerate(self.button_names):
             btn = ctk.CTkButton(self, text=name, fg_color="transparent", text_color="white", font=("Arial", 20, "bold"),
-                                hover_color="#00A14A", command=lambda p=page: self.change_page(p))
+                                hover_color="#00A14A", command=lambda p=page: self.change_page(p), width=100, height=40, anchor="center")
             btn.grid(row=0, column=index + 1, padx=130, pady=10)
             self.buttons.append(btn)
 
@@ -57,6 +61,7 @@ class Topbar(ctk.CTkFrame):
 
         for btn, (_, page) in zip(self.buttons, self.button_names):
             btn.configure(text_color="yellow" if page == page_name else "white")
+            btn.configure(font=("Arial", 20, "bold", "underline") if page == page_name else ("Arial", 20, "bold"))
 
 # Pagina de Ventas
 class VentasPage(ctk.CTkFrame):
