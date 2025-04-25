@@ -9,9 +9,10 @@ USE Tortilleria
 CREATE TABLE Usuario(
 	IDusuario int not null identity(1,1),
 	Nombre varchar(50),
+	Contrasena varchar(255) not null,
 	Rol varchar(50)
 
-	CONSTRAINT PK_IDusuairo PRIMARY KEY (IDusuario)
+	CONSTRAINT PK_IDusuario PRIMARY KEY (IDusuario)
 )
 
 CREATE TABLE Venta (
@@ -34,7 +35,7 @@ CREATE TABLE Producto(
 CREATE TABLE Detalles_venta(
 	IDdetalles int not null identity(1,1),
 	Fecha date,
-	Total int,
+	Total money,
 	IDventa int not null,
 	IDproducto int not null,
 
@@ -51,3 +52,5 @@ CREATE TABLE Reporte(
 	CONSTRAINT PK_IDreporte PRIMARY KEY (IDreporte)
 )
 
+INSERT INTO Usuario (Nombre, Contrasena, Rol) 
+VALUES ('admin', 'verde001', 'Administrador')

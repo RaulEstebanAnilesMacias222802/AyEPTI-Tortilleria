@@ -129,6 +129,6 @@ class ReportesPage(ctk.CTkFrame):
         label = ctk.CTkLabel(self, text="Página de Reportes", font=("Arial", 24))
         label.pack(pady=50)
 
-# Ejecutar la app
-app = App()
-app.mainloop()
+if __name__ == "__main__":
+    app = App()
+    app.mainloop()
