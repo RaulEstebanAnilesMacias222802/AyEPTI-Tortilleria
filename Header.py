@@ -124,6 +124,39 @@ class VentasPage(ctk.CTkFrame):
         self.total_label = ctk.CTkLabel(carrito_frame, text="Total: $0.00", font=("Arial", 16), text_color="black")
         self.total_label.pack(pady=10)
 
+        # Cuadro
+        cuadro = ctk.CTkFrame(self, width=500, height=600, fg_color="gray")
+        cuadro.pack_propagate(False)
+        cuadro.place_forget()
+
+        # Funciones para mostrar y ocultar el cuadro
+        def mostrar_cuadro():
+            cuadro.place(relx=0.5, rely=0.5, anchor="center")
+
+        def ocultar_cuadro():
+            cuadro.place_forget()
+
+        # Contenido del cuadro
+
+        # Etiqueta TICKET
+        cuadro_label = ctk.CTkLabel(cuadro, text="TICKET", font=("Arial", 20, "bold"), text_color="#B1D800")
+        cuadro_label.pack(pady=(20, 10))
+        cuadro_line = ctk.CTkFrame(cuadro, fg_color="#B1D800", height=2)
+        cuadro_line.pack(fill="x", pady=(0, 5))
+
+        # Huevo Vacio (Temporal)
+        espaciador = ctk.CTkLabel(cuadro, text="")
+        espaciador.pack(expand=True)
+
+        # Botón CERRAR TICKET
+        boton_cerrar = ctk.CTkButton(cuadro, text="Cerrar", command=ocultar_cuadro, font=("Arial", 16, "bold"),fg_color="#B1D800", text_color="white", hover_color="#9fc000")
+        boton_cerrar.pack(pady=20)
+
+        # Botón TICKET
+        boton_mostrar = ctk.CTkButton(carrito_frame, text="TICKET", command=mostrar_cuadro, font=("Arial", 16, "bold"),fg_color="#B1D800", text_color="white", hover_color="#9fc000")
+        boton_mostrar.pack(pady=20)
+
+
         finalizar_btn = ctk.CTkButton(carrito_frame, text="Finalizar Compra", font=("Arial", 16, "bold"),
                                      fg_color="#B1D800", text_color="white", hover_color="#9fc000",
                                      command=self.finalizar_compra)
