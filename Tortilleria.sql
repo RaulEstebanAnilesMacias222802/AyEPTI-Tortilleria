@@ -106,4 +106,4 @@ BEGIN
 END
 
 go
-EXEC SP_ReporteVentasPorDia '2025-04-27';
+EXEC SP_ReporteVentasPorRango '2025-04-27', '2025-04-27';
