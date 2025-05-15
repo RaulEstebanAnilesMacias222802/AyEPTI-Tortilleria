@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from ventas import VentasPage
 from inventario import InventarioPage
-from reportes import ReportesPage
+from Reportes import ReportesPage
 from Header import Topbar
 from Login import LoginApp
 

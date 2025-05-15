@@ -2,6 +2,7 @@ import customtkinter as ctk
 from PIL import Image
 import tkinter.messagebox as messagebox
 import pyodbc
+from Conexion import connection_string
 
 class LoginApp(ctk.CTkFrame):
     def __init__(self, master):
@@ -10,12 +11,8 @@ class LoginApp(ctk.CTkFrame):
         self.master = master  # para acceder al frame principal
         self.configure(width=600, height=400)
 
-        # Configuración de conexión a base de datos
-        self.server = 'HAZZO'
-        self.database = 'Tortilleria'
-        self.username = 'sa'
-        self.password = 'verde001'
-        self.connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={self.server};DATABASE={self.database};UID={self.username};PWD={self.password}'
+        # Configuración de la base de datos
+        self.connection_string = connection_string
 
         # Fondo
         bg_image = Image.open("Tortillas.jpg")
@@ -58,7 +55,7 @@ class LoginApp(ctk.CTkFrame):
         if conn:
             try:
                 cursor = conn.cursor()
-                query = "SELECT Nombre, Rol FROM Usuario WHERE Nombre = ? AND Contraseña = ?"
+                query = "SELECT Nombre, Rol FROM Usuario WHERE Nombre = ? AND Contrasena = ?"
                 cursor.execute(query, (usuario, contrasena))
                 user_data = cursor.fetchone()
 
