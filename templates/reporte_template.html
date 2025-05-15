@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        h1 { color: #2b2b2b; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #7dffb9; }
+        .fechas { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Reporte Generado</h1>
+    
+    <div class="fechas">
+        <p><strong>Fecha Inicio:</strong> {{ fecha_inicio }}</p>
+        <p><strong>Fecha Fin:</strong> {{ fecha_fin }}</p>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                {% for col in encabezados %}
+                <th>{{ col }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for fila in datos %}
+            <tr>
+                {% for valor in fila %}
+                <td>{{ valor }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

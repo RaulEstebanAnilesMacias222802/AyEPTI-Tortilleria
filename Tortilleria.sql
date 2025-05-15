@@ -18,6 +18,7 @@ CREATE TABLE Usuario(
 CREATE TABLE Venta (
 	IDventa int not null identity(1,1),
 	Total money,
+	Fecha datetime,
 	IDusuario int not null,
 
 	CONSTRAINT PK_IDventa PRIMARY KEY (IDventa),
@@ -27,7 +28,7 @@ CREATE TABLE Venta (
 CREATE TABLE Producto(
 	IDproducto int not null identity(1,1),
 	Nombre varchar(50),
-	Cantidad float,
+	Precio money,
 
 	CONSTRAINT PK_IDproducto PRIMARY KEY (IDproducto)
 )
@@ -38,8 +39,8 @@ CREATE TABLE Detalles_venta(
 	Total money,
 	IDventa int not null,
 	IDproducto int not null,
+	Cantidad int
 
-	CONSTRAINT PK_IDdetalles PRIMARY KEY (IDdetalles),
 	CONSTRAINT FK_IDventa FOREIGN KEY (IDventa) REFERENCES Venta(IDventa),
 	CONSTRAINT FK_IDproducto FOREIGN KEY (IDproducto) REFERENCES Producto(IDproducto)
 )
@@ -51,6 +52,5 @@ CREATE TABLE Reporte(
 
 	CONSTRAINT PK_IDreporte PRIMARY KEY (IDreporte)
 )
-
 INSERT INTO Usuario (Nombre, Contrasena, Rol) 
 VALUES ('admin', 'verde001', 'Administrador')
