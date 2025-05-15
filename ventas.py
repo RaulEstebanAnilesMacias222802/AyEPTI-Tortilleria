@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from datetime import datetime
 
 class VentasPage(ctk.CTkFrame):
     def __init__(self, master):
@@ -15,7 +16,7 @@ class VentasPage(ctk.CTkFrame):
         left_frame.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
 
         detalles_label = ctk.CTkLabel(left_frame, text="Detalles de Venta", font=("Arial", 20, "bold"),
-                                      text_color="#B1D800", fg_color="transparent")
+                                    text_color="#B1D800", fg_color="transparent")
         detalles_label.pack(anchor="w")
 
         detalles_line = ctk.CTkFrame(left_frame, fg_color="#B1D800", height=2)
@@ -44,7 +45,7 @@ class VentasPage(ctk.CTkFrame):
         carrito_frame.grid(row=0, column=1, sticky="nsew", padx=(0,10))
 
         carrito_label = ctk.CTkLabel(carrito_frame, text="Carrito", font=("Arial", 20, "bold"),
-                                     text_color="#B1D800", fg_color="transparent")
+                                    text_color="#B1D800", fg_color="transparent")
         carrito_label.pack(anchor="w")
 
         carrito_line = ctk.CTkFrame(carrito_frame, fg_color="#B1D800", height=2)
@@ -63,42 +64,31 @@ class VentasPage(ctk.CTkFrame):
         self.total_label = ctk.CTkLabel(carrito_frame, text="Total: $0.00", font=("Arial", 16), text_color="black")
         self.total_label.pack(pady=10)
 
-        # Cuadro
-        cuadro = ctk.CTkFrame(self, width=500, height=600, fg_color="gray")
-        cuadro.pack_propagate(False)
-        cuadro.place_forget()
-
-        # Funciones para mostrar y ocultar el cuadro
-        def mostrar_cuadro():
-            cuadro.place(relx=0.5, rely=0.5, anchor="center")
-
-        def ocultar_cuadro():
-            cuadro.place_forget()
-
-        # Contenido del cuadro
-
-        # Etiqueta TICKET
-        cuadro_label = ctk.CTkLabel(cuadro, text="TICKET", font=("Arial", 20, "bold"), text_color="#B1D800")
-        cuadro_label.pack(pady=(20, 10))
-        cuadro_line = ctk.CTkFrame(cuadro, fg_color="#B1D800", height=2)
-        cuadro_line.pack(fill="x", pady=(0, 5))
-
-        # Huevo Vacio (Temporal)
-        espaciador = ctk.CTkLabel(cuadro, text="")
-        espaciador.pack(expand=True)
-
-        # Botón CERRAR TICKET
-        boton_cerrar = ctk.CTkButton(cuadro, text="Cerrar", command=ocultar_cuadro, font=("Arial", 16, "bold"),fg_color="#B1D800", text_color="white", hover_color="#9fc000")
-        boton_cerrar.pack(pady=20)
+        # Configuración del cuadro de ticket
+        self.cuadro_ticket = ctk.CTkFrame(self, width=450, height=600, fg_color="white", border_width=1, border_color="#B1D800")
+        self.cuadro_ticket.pack_propagate(False)
+        self.cuadro_ticket.place_forget()
+        
+        # Frame para el contenido del ticket (scrollable)
+        self.ticket_container = ctk.CTkScrollableFrame(self.cuadro_ticket, fg_color="white")
+        self.ticket_container.pack(fill="both", expand=True, padx=20, pady=10)
+        
+        # Botón para cerrar el ticket
+        self.btn_cerrar_ticket = ctk.CTkButton(self.cuadro_ticket, text="Cerrar", command=self.ocultar_ticket, 
+                                            font=("Arial", 14, "bold"), fg_color="#B1D800", text_color="white", 
+                                            hover_color="#9fc000", width=100)
+        self.btn_cerrar_ticket.pack(pady=(0, 10))
 
         # Botón TICKET
-        boton_mostrar = ctk.CTkButton(carrito_frame, text="TICKET", command=mostrar_cuadro, font=("Arial", 16, "bold"),fg_color="#B1D800", text_color="white", hover_color="#9fc000")
+        boton_mostrar = ctk.CTkButton(carrito_frame, text="TICKET", command=self.mostrar_ticket, 
+                                    font=("Arial", 16, "bold"), fg_color="#B1D800", text_color="white", 
+                                    hover_color="#9fc000")
         boton_mostrar.pack(pady=20)
 
 
         finalizar_btn = ctk.CTkButton(carrito_frame, text="Finalizar Compra", font=("Arial", 16, "bold"),
-                                     fg_color="#B1D800", text_color="white", hover_color="#9fc000",
-                                     command=self.finalizar_compra)
+                                    fg_color="#B1D800", text_color="white", hover_color="#9fc000",
+                                    command=self.finalizar_compra)
         finalizar_btn.pack(pady=10)
 
     def agregar_producto(self, parent, nombre, precio, opciones):
@@ -161,8 +151,8 @@ class VentasPage(ctk.CTkFrame):
         lbl_total.grid(row=row, column=2, padx=5, pady=5, sticky="w")
 
         btn_borrar = ctk.CTkButton(self.carrito_tabla, text="X", width=30, height=30,
-                                   fg_color="#ff4444", hover_color="#cc0000",
-                                   command=lambda: self.eliminar_del_carrito(row))
+                                fg_color="#ff4444", hover_color="#cc0000",
+                                command=lambda: self.eliminar_del_carrito(row))
         btn_borrar.grid(row=row, column=3, padx=5, pady=5)
 
     # Guardar referencias
@@ -171,7 +161,9 @@ class VentasPage(ctk.CTkFrame):
             "precio_unitario": precio,
             "cantidad_entry": cantidad_entry,
             "lbl_total": lbl_total,
-            "widgets": [lbl_producto, cantidad_entry, lbl_total, btn_borrar]
+            "widgets": [lbl_producto, cantidad_entry, lbl_total, btn_borrar],
+            "nombre": nombre,
+            "presentacion": presentacion
         }
         self.filas_carrito.append(fila)
 
@@ -214,6 +206,100 @@ class VentasPage(ctk.CTkFrame):
 
         self.total_label.configure(text=f"Total: ${total:.2f}")
 
+    def mostrar_ticket(self):
+        self.actualizar_ticket()
+        self.cuadro_ticket.place(relx=0.5, rely=0.5, anchor="center")
+
+    def ocultar_ticket(self):
+        self.cuadro_ticket.place_forget()
+
+    def actualizar_ticket(self):
+        # Limpiar el contenido anterior del ticket
+        for widget in self.ticket_container.winfo_children():
+            widget.destroy()
+        
+        # Agregar el encabezado del ticket
+        cuadro_label = ctk.CTkLabel(self.ticket_container, text="TICKET DE COMPRA", font=("Arial", 18, "bold"), 
+                                text_color="#B1D800")
+        cuadro_label.pack(anchor="center", pady=(0, 10))
+        
+        cuadro_line = ctk.CTkFrame(self.ticket_container, fg_color="#B1D800", height=2)
+        cuadro_line.pack(fill="x", pady=(0, 10))
+        
+        # Agregar información de fecha/hora
+        fecha_hora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        fecha_label = ctk.CTkLabel(self.ticket_container, text=f"Fecha: {fecha_hora}", 
+                                font=("Arial", 12), text_color="black")
+        fecha_label.pack(anchor="w", pady=(0, 15))
+        
+        # Agregar los productos del carrito
+        if not self.filas_carrito:
+            vacio_label = ctk.CTkLabel(self.ticket_container, text="El carrito está vacío", 
+                                    font=("Arial", 14), text_color="gray")
+            vacio_label.pack(pady=20)
+        else:
+            # Encabezados de la tabla
+            headers_frame = ctk.CTkFrame(self.ticket_container, fg_color="transparent")
+            headers_frame.pack(fill="x", pady=(0, 5))
+            
+            ctk.CTkLabel(headers_frame, text="Producto", font=("Arial", 12, "bold"), 
+                        text_color="black", width=180, anchor="w").pack(side="left")
+            ctk.CTkLabel(headers_frame, text="Cant.", font=("Arial", 12, "bold"), 
+                        text_color="black", width=50, anchor="center").pack(side="left", padx=5)
+            ctk.CTkLabel(headers_frame, text="P.Unit.", font=("Arial", 12, "bold"), 
+                        text_color="black", width=70, anchor="center").pack(side="left", padx=5)
+            ctk.CTkLabel(headers_frame, text="Total", font=("Arial", 12, "bold"), 
+                        text_color="black", width=70, anchor="center").pack(side="left")
+            
+            # Línea divisoria
+            ctk.CTkFrame(self.ticket_container, fg_color="#e0e0e0", height=1).pack(fill="x", pady=5)
+            
+            total_compra = 0
+            
+            # Agregar cada producto
+            for fila in self.filas_carrito:
+                try:
+                    cantidad = int(fila["cantidad_entry"].get())
+                    if cantidad <= 0:
+                        continue
+                        
+                    producto_frame = ctk.CTkFrame(self.ticket_container, fg_color="transparent")
+                    producto_frame.pack(fill="x", pady=2)
+                    
+                    precio_unitario = fila["precio_unitario"]
+                    total_producto = precio_unitario * cantidad
+                    total_compra += total_producto
+                    
+                    # Mostrar nombre del producto y presentación
+                    nombre_text = f"{fila['nombre']} ({fila['presentacion']})"
+                    ctk.CTkLabel(producto_frame, text=nombre_text, font=("Arial", 12), 
+                                text_color="black", width=180, anchor="w").pack(side="left")
+                    ctk.CTkLabel(producto_frame, text=str(cantidad), font=("Arial", 12), 
+                                text_color="black", width=50, anchor="center").pack(side="left", padx=5)
+                    ctk.CTkLabel(producto_frame, text=f"${precio_unitario:.2f}", font=("Arial", 12), 
+                                text_color="black", width=70, anchor="center").pack(side="left", padx=5)
+                    ctk.CTkLabel(producto_frame, text=f"${total_producto:.2f}", font=("Arial", 12), 
+                                text_color="black", width=70, anchor="center").pack(side="left")
+                
+                except ValueError:
+                    continue
+            
+            # Línea divisoria antes del total
+            ctk.CTkFrame(self.ticket_container, fg_color="#e0e0e0", height=1).pack(fill="x", pady=10)
+            
+            # Mostrar el total
+            total_frame = ctk.CTkFrame(self.ticket_container, fg_color="transparent")
+            total_frame.pack(fill="x", pady=(0, 20))
+            
+            ctk.CTkLabel(total_frame, text="TOTAL:", font=("Arial", 14, "bold"), 
+                        text_color="black").pack(side="left", padx=(120, 10))
+            ctk.CTkLabel(total_frame, text=f"${total_compra:.2f}", font=("Arial", 14, "bold"), 
+                        text_color="#B1D800").pack(side="left")
+        
+        # Mensaje de agradecimiento
+        gracias_label = ctk.CTkLabel(self.ticket_container, text="¡Gracias por su compra!", 
+                                font=("Arial", 14), text_color="#B1D800")
+        gracias_label.pack(pady=(20, 0))
 
     def finalizar_compra(self):
         for item in self.filas_carrito:
@@ -223,4 +309,4 @@ class VentasPage(ctk.CTkFrame):
         self.carrito_items.clear()
         self.actualizar_total()
         ctk.CTkLabel(self.carrito_tabla, text="¡Gracias por su compra!", font=("Arial", 16, "bold"),
-                     text_color="#00A14A").grid(row=1, column=0, columnspan=4, pady=20)
+                    text_color="#00A14A").grid(row=1, column=0, columnspan=4, pady=20)
