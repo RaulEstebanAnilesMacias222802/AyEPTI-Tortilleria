@@ -4,16 +4,13 @@ import pdfkit
 from tkcalendar import DateEntry
 from jinja2 import Environment, FileSystemLoader
 from datetime import datetime
+from Conexion import connection_string
 
 class ReportesPage(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master, fg_color="white")
         
-        self.server = 'DESKTOP-7FA4G9M'
-        self.database = 'Tortilleria'
-        self.trusted_connection = 'Yes'
-        self.connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={self.server};DATABASE={self.database};Trusted_Connection={self.trusted_connection};TrustServerCertificate=Yes'
-        self.conn = pyodbc.connect(self.connection_string)
+        self.conn = pyodbc.connect(connection_string)
         self.cursor = self.conn.cursor()
 
         # Configuración de la cuadrícula
