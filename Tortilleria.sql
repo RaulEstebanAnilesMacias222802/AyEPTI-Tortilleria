@@ -28,6 +28,7 @@ CREATE TABLE Venta (
 CREATE TABLE Producto(
 	IDproducto int not null identity(1,1),
 	Nombre varchar(50),
+	cantidad int,
 	Precio money,
 
 	CONSTRAINT PK_IDproducto PRIMARY KEY (IDproducto)
@@ -59,11 +60,11 @@ INSERT INTO Usuario (Nombre, Contrasena, Rol) VALUES
 ('Carlos Díaz', 'qwerty', 'Empleado');
 
 -- Insertar productos
-INSERT INTO Producto (Nombre, Precio) VALUES
-('Tortilla de maíz', 26.00),
-('Tortilla de harina', 22.00),
-('Totopos', 30.00),
-('Masa para tamales', 25.00);
+INSERT INTO Producto (Nombre, cantidad, Precio) VALUES
+('Tortilla de maíz', null, 26.00),
+('Tortilla de harina', 20, 22.00),
+('Totopos', 36, 30.00),
+('Masa para tamales', null, 25.00);
 
 -- Insertar ventas
 INSERT INTO Venta (Total, Fecha, IDusuario) VALUES
