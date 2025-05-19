@@ -112,6 +112,7 @@ INSERT INTO Venta (Total, Fecha, IDusuario) VALUES (25.00, '2025-04-29 16:30:00'
 INSERT INTO Detalles_Venta (IDventa, IDproducto, Cantidad) VALUES
 (7, 4, 1);  -- 1 x 25 = 25
 
+GO
 
 CREATE PROCEDURE SP_ReporteVentasPorRango
     @FechaInicio DATE,

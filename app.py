@@ -21,14 +21,28 @@ class App(ctk.CTk):
         self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-        # Diccionario de páginas
-        self.frames = {}
-        for PageClass in (LoginApp, VentasPage, InventarioPage, ReportesPage):
-            page = PageClass(container)
-            self.frames[PageClass.__name__] = page
-            page.grid(row=0, column=0, sticky="nsew")
+        # Creamos las páginas primero
+        self.ventas_page = VentasPage(container)
+        self.inventario_page = InventarioPage(container)
+        self.reportes_page = ReportesPage(container)
+        self.login_page = LoginApp(container)
 
-        # Mostrar la página de ventas por defecto
+        # Diccionario de páginas
+        self.frames = {
+            "VentasPage": self.ventas_page,
+            "InventarioPage": self.inventario_page,
+            "ReportesPage": self.reportes_page,
+            "LoginApp": self.login_page
+        }
+
+        # Colocamos todas las páginas en el mismo lugar
+        for frame in self.frames.values():
+            frame.grid(row=0, column=0, sticky="nsew")
+
+        # Configuramos la página de login para que tenga referencia al App
+        self.login_page.master = self
+
+        # Mostrar la página de login por defecto
         self.show_page("LoginApp")
 
     def show_page(self, page_name):

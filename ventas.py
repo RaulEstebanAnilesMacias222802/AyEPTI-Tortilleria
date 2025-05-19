@@ -1,10 +1,28 @@
 import customtkinter as ctk
 from datetime import datetime
+import pyodbc
+from Conexion import connection_string
 
 class VentasPage(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master, fg_color="white")
+        self.usuario_actual = None
+        self.id_usuario = None
+        self.carrito_items = []
+        self.filas_carrito = []
 
+        try:
+            self.conn = pyodbc.connect(connection_string)
+            self.cursor = self.conn.cursor()
+            self.conn.autocommit = False
+        except Exception as e:
+            print(f"Error al conectar a la base de datos: {e}")
+            self.conn = None
+            self.cursor = None
+
+        self.crear_interfaz()
+
+    def crear_interfaz(self):
         main_frame = ctk.CTkFrame(self, fg_color="transparent")
         main_frame.pack(fill="both", expand=True, padx=2, pady=2)
         main_frame.grid_columnconfigure(0, minsize=1200)
@@ -25,20 +43,8 @@ class VentasPage(ctk.CTkFrame):
         contenido_ventas = ctk.CTkFrame(left_frame, fg_color="transparent")
         contenido_ventas.pack(fill="both", expand=True)
         
-        self.carrito_items = []
-        self.filas_carrito = []
-        # Cambio de precios no funcional
-        self.precios_productos = {
-            "Tortillas de maíz": {"1kg": 23, "500g": 12, "250g": 6},
-            "Tortillas de harina": {"1kg": 28, "500g": 14, "250g": 7},
-            "Totopos": {"1kg": 35, "500g": 18, "250g": 9},
-            "Chicharron": {"1kg": 45, "500g": 23, "250g": 12}
-        }
-        # Cantidad
-        self.agregar_producto(contenido_ventas, "Tortillas de maíz", 23, ["1kg", "500g", "250g"])
-        self.agregar_producto(contenido_ventas, "Tortillas de harina", 28, ["1kg", "500g", "250g"])
-        self.agregar_producto(contenido_ventas, "Totopos", 35, ["1kg", "500g", "250g"])
-        self.agregar_producto(contenido_ventas, "Chicharron", 45, ["1kg", "500g", "250g"])
+        # Cargar productos desde la base de datos
+        self.cargar_productos(contenido_ventas)
 
         # Frame derecho - CARRITO
         carrito_frame = ctk.CTkFrame(main_frame, fg_color="transparent", corner_radius=10)
@@ -85,13 +91,31 @@ class VentasPage(ctk.CTkFrame):
                                     hover_color="#9fc000")
         boton_mostrar.pack(pady=20)
 
-
         finalizar_btn = ctk.CTkButton(carrito_frame, text="Finalizar Compra", font=("Arial", 16, "bold"),
                                     fg_color="#B1D800", text_color="white", hover_color="#9fc000",
                                     command=self.finalizar_compra)
         finalizar_btn.pack(pady=10)
 
-    def agregar_producto(self, parent, nombre, precio, opciones):
+    def cargar_productos(self, parent):
+        """Carga los productos desde la base de datos y los muestra en la interfaz"""
+        try:
+            if self.conn is None:
+                self.conn = pyodbc.connect(connection_string)
+                self.cursor = self.conn.cursor()
+
+            query = "SELECT IDproducto, Nombre, Precio FROM Producto"
+            self.cursor.execute(query)
+            productos = self.cursor.fetchall()
+
+            for producto in productos:
+                id_producto, nombre, precio = producto
+                precio = float(precio)
+                self.agregar_producto(parent, nombre, precio, id_producto)
+
+        except Exception as e:
+            print(f"Error al cargar productos: {e}")
+
+    def agregar_producto(self, parent, nombre, precio, id_producto):
         producto_frame = ctk.CTkFrame(parent, fg_color="white", corner_radius=10)
         producto_frame.pack(fill="x", pady=5, padx=5)
         producto_frame.grid_columnconfigure(1, weight=1)
@@ -103,33 +127,23 @@ class VentasPage(ctk.CTkFrame):
         nombre_label = ctk.CTkLabel(producto_frame, text=nombre, font=("Arial", 16, "bold"), text_color="#74c900")
         nombre_label.grid(row=0, column=1, sticky="w")
 
-        precio_label = ctk.CTkLabel(producto_frame, text=f"Precio: ${precio}", font=("Arial", 14), text_color="black")
+        precio_label = ctk.CTkLabel(producto_frame, text=f"Precio: ${precio:.2f}", font=("Arial", 14), text_color="black")
         precio_label.grid(row=1, column=1, sticky="w")
 
         cantidad_label = ctk.CTkLabel(producto_frame, text="Cantidad:", font=("Arial", 14), text_color="black")
         cantidad_label.grid(row=2, column=1, sticky="w", padx=(0,5))
 
-        combo_borde = ctk.CTkFrame(producto_frame, fg_color="#cccccc", corner_radius=5)
-        combo_borde.grid(row=2, column=1, sticky="w", padx=(80, 10))
-
-        combo = ctk.CTkOptionMenu(
-            combo_borde,
-            values=opciones,
-            fg_color="white",
-            text_color="black",
-            button_color="white",
-            button_hover_color="#f0f0f0" 
-        )
-        combo.pack(padx=1, pady=1)
+        cantidad_entry = ctk.CTkEntry(producto_frame, width=50, font=("Arial", 14))
+        cantidad_entry.insert(0, "1")
+        cantidad_entry.grid(row=2, column=1, sticky="w", padx=(80, 10))
 
         agregar_btn = ctk.CTkButton(producto_frame, text="Agregar al carrito", font=("Arial", 12, "bold"),
-                                    fg_color="#B1D800", text_color="white", hover_color="#9fc000",
-                                    command=lambda: self.agregar_al_carrito(nombre, precio, combo.get(), 1))
+                                  fg_color="#B1D800", text_color="white", hover_color="#9fc000",
+                                  command=lambda: self.agregar_al_carrito(
+                                      id_producto, nombre, precio, cantidad_entry.get()))
         agregar_btn.grid(row=5, column=2, pady=0, padx=(0, 5), sticky="w")
 
-
-
-    def agregar_al_carrito(self, nombre, precio, presentacion, cantidad):
+    def agregar_al_carrito(self, id_producto, nombre, precio, cantidad):
         try:
             cantidad = int(cantidad)
             if cantidad <= 0:
@@ -137,10 +151,20 @@ class VentasPage(ctk.CTkFrame):
         except ValueError:
             return
 
+        # Verificar si el producto ya está en el carrito
+        for item in self.filas_carrito:
+            if item["id_producto"] == id_producto:
+                # Actualizar cantidad si ya existe
+                nueva_cantidad = int(item["cantidad_entry"].get()) + cantidad
+                item["cantidad_entry"].delete(0, 'end')
+                item["cantidad_entry"].insert(0, str(nueva_cantidad))
+                self.actualizar_cantidad(item)
+                return
+
         total = precio * cantidad
         row = len(self.filas_carrito) + 1
 
-        lbl_producto = ctk.CTkLabel(self.carrito_tabla, text=f"{nombre} ({presentacion})", font=("Arial", 13), text_color="black")
+        lbl_producto = ctk.CTkLabel(self.carrito_tabla, text=nombre, font=("Arial", 13), text_color="black")
         lbl_producto.grid(row=row, column=0, padx=5, pady=5, sticky="w")
 
         cantidad_entry = ctk.CTkEntry(self.carrito_tabla, width=50, font=("Arial", 13))
@@ -155,30 +179,34 @@ class VentasPage(ctk.CTkFrame):
                                 command=lambda: self.eliminar_del_carrito(row))
         btn_borrar.grid(row=row, column=3, padx=5, pady=5)
 
-    # Guardar referencias
+        # Guardar referencias
         fila = {
             "row": row,
+            "id_producto": id_producto,
             "precio_unitario": precio,
             "cantidad_entry": cantidad_entry,
             "lbl_total": lbl_total,
             "widgets": [lbl_producto, cantidad_entry, lbl_total, btn_borrar],
-            "nombre": nombre,
-            "presentacion": presentacion
+            "nombre": nombre
         }
         self.filas_carrito.append(fila)
 
-    # Evento para actualizar total al modificar cantidad
+        # Evento para actualizar total al modificar cantidad
         cantidad_entry.bind("<KeyRelease>", lambda event: self.actualizar_cantidad(fila))
 
         self.actualizar_total()
 
-    def actualizar_cantidad(self,fila):
+    def actualizar_cantidad(self, fila):
         try:
             nueva_cantidad = int(fila["cantidad_entry"].get())
             if nueva_cantidad < 0:
                 nueva_cantidad = 0
+                fila["cantidad_entry"].delete(0, 'end')
+                fila["cantidad_entry"].insert(0, "0")
         except ValueError:
             nueva_cantidad = 0
+            fila["cantidad_entry"].delete(0, 'end')
+            fila["cantidad_entry"].insert(0, "0")
 
         nuevo_total = fila["precio_unitario"] * nueva_cantidad
         fila["lbl_total"].configure(text=f"${nuevo_total:.2f}")
@@ -209,6 +237,13 @@ class VentasPage(ctk.CTkFrame):
     def mostrar_ticket(self):
         self.actualizar_ticket()
         self.cuadro_ticket.place(relx=0.5, rely=0.5, anchor="center")
+        # Limpiar el campo de pago si existe
+        if hasattr(self, 'pago_entry'):
+            self.pago_entry.delete(0, 'end')
+        # Limpiar el frame de cambio si existe
+        if hasattr(self, 'cambio_frame'):
+            for widget in self.cambio_frame.winfo_children():
+                widget.destroy()
 
     def ocultar_ticket(self):
         self.cuadro_ticket.place_forget()
@@ -232,6 +267,12 @@ class VentasPage(ctk.CTkFrame):
                                 font=("Arial", 12), text_color="black")
         fecha_label.pack(anchor="w", pady=(0, 15))
         
+        # Agregar información del vendedor
+        if hasattr(self, 'nombre_usuario'):
+            vendedor_label = ctk.CTkLabel(self.ticket_container, text=f"Vendedor: {self.nombre_usuario}", 
+                                        font=("Arial", 12), text_color="black")
+            vendedor_label.pack(anchor="w", pady=(0, 15))
+        
         # Agregar los productos del carrito
         if not self.filas_carrito:
             vacio_label = ctk.CTkLabel(self.ticket_container, text="El carrito está vacío", 
@@ -254,7 +295,7 @@ class VentasPage(ctk.CTkFrame):
             # Línea divisoria
             ctk.CTkFrame(self.ticket_container, fg_color="#e0e0e0", height=1).pack(fill="x", pady=5)
             
-            total_compra = 0
+            self.total_compra = 0  # Guardamos el total como atributo para usarlo después
             
             # Agregar cada producto
             for fila in self.filas_carrito:
@@ -268,11 +309,10 @@ class VentasPage(ctk.CTkFrame):
                     
                     precio_unitario = fila["precio_unitario"]
                     total_producto = precio_unitario * cantidad
-                    total_compra += total_producto
+                    self.total_compra += total_producto
                     
-                    # Mostrar nombre del producto y presentación
-                    nombre_text = f"{fila['nombre']} ({fila['presentacion']})"
-                    ctk.CTkLabel(producto_frame, text=nombre_text, font=("Arial", 12), 
+                    # Mostrar nombre del producto
+                    ctk.CTkLabel(producto_frame, text=fila['nombre'], font=("Arial", 12), 
                                 text_color="black", width=180, anchor="w").pack(side="left")
                     ctk.CTkLabel(producto_frame, text=str(cantidad), font=("Arial", 12), 
                                 text_color="black", width=50, anchor="center").pack(side="left", padx=5)
@@ -293,20 +333,117 @@ class VentasPage(ctk.CTkFrame):
             
             ctk.CTkLabel(total_frame, text="TOTAL:", font=("Arial", 14, "bold"), 
                         text_color="black").pack(side="left", padx=(120, 10))
-            ctk.CTkLabel(total_frame, text=f"${total_compra:.2f}", font=("Arial", 14, "bold"), 
+            ctk.CTkLabel(total_frame, text=f"${self.total_compra:.2f}", font=("Arial", 14, "bold"), 
                         text_color="#B1D800").pack(side="left")
+            
+            # Sección de pago
+            pago_frame = ctk.CTkFrame(self.ticket_container, fg_color="transparent")
+            pago_frame.pack(fill="x", pady=(10, 5))
+            
+            ctk.CTkLabel(pago_frame, text="Pago:", font=("Arial", 14, "bold"), 
+                        text_color="black").pack(side="left", padx=(100, 10))
+            
+            self.pago_entry = ctk.CTkEntry(pago_frame, width=100, font=("Arial", 14))
+            self.pago_entry.pack(side="left")
+            
+            # Botón para calcular cambio
+            calcular_btn = ctk.CTkButton(pago_frame, text="Calcular", font=("Arial", 12),
+                                    command=self.calcular_cambio, width=80)
+            calcular_btn.pack(side="left", padx=10)
+            
+            # Frame para mostrar el cambio
+            self.cambio_frame = ctk.CTkFrame(self.ticket_container, fg_color="transparent")
+            self.cambio_frame.pack(fill="x", pady=(0, 20))
         
         # Mensaje de agradecimiento
         gracias_label = ctk.CTkLabel(self.ticket_container, text="¡Gracias por su compra!", 
                                 font=("Arial", 14), text_color="#B1D800")
         gracias_label.pack(pady=(20, 0))
 
+    def calcular_cambio(self):
+        # Limpiar el frame de cambio si ya tenía contenido
+        for widget in self.cambio_frame.winfo_children():
+            widget.destroy()
+        
+        try:
+            pago = float(self.pago_entry.get())
+            cambio = pago - self.total_compra
+            
+            if cambio < 0:
+                ctk.CTkLabel(self.cambio_frame, text="Pago insuficiente", 
+                            font=("Arial", 14), text_color="#ff0000").pack()
+            else:
+                ctk.CTkLabel(self.cambio_frame, text="Cambio:", 
+                            font=("Arial", 14, "bold"), text_color="black").pack(side="left", padx=(120, 10))
+                ctk.CTkLabel(self.cambio_frame, text=f"${cambio:.2f}", 
+                            font=("Arial", 14, "bold"), text_color="#B1D800").pack(side="left")
+        except ValueError:
+            ctk.CTkLabel(self.cambio_frame, text="Ingrese un valor válido", 
+                        font=("Arial", 14), text_color="#ff0000").pack()
+
+    def set_usuario(self, id_usuario, nombre_usuario):
+        """Establece el usuario actual para registrar las ventas"""
+        self.id_usuario = id_usuario
+        self.nombre_usuario = nombre_usuario
+
     def finalizar_compra(self):
-        for item in self.filas_carrito:
-            for widget in item["widgets"]:
-                widget.destroy()
-        self.filas_carrito.clear()
-        self.carrito_items.clear()
-        self.actualizar_total()
-        ctk.CTkLabel(self.carrito_tabla, text="¡Gracias por su compra!", font=("Arial", 16, "bold"),
-                    text_color="#00A14A").grid(row=1, column=0, columnspan=4, pady=20)
+        if not self.filas_carrito:
+            return
+
+        try:
+            # Verificar que tenemos un usuario válido
+            if not hasattr(self, 'id_usuario'):
+                raise Exception("No se ha identificado al usuario")
+
+            # Calcular el total de la venta
+            total = 0
+            for fila in self.filas_carrito:
+                cantidad = int(fila["cantidad_entry"].get())
+                total += cantidad * fila["precio_unitario"]
+
+            # Insertar la venta y obtener el ID
+            query_venta = """
+            INSERT INTO Venta (Total, Fecha, IDusuario) 
+            OUTPUT INSERTED.IDventa
+            VALUES (?, GETDATE(), ?)
+            """
+            self.cursor.execute(query_venta, (total, self.id_usuario))
+        
+            # Obtener el ID de la venta insertada
+            id_venta = self.cursor.fetchone()[0]
+        
+            # Insertar los detalles de la venta
+            for fila in self.filas_carrito:
+                cantidad = int(fila["cantidad_entry"].get())
+                if cantidad > 0:
+                    query_detalle = """
+                    INSERT INTO Detalles_Venta (IDventa, IDproducto, Cantidad) 
+                    VALUES (?, ?, ?)
+                    """
+                    self.cursor.execute(query_detalle, (id_venta, fila["id_producto"], cantidad))
+
+            # Confirmar la transacción
+            self.conn.commit()
+
+            # Limpiar el carrito
+            for item in self.filas_carrito:
+                for widget in item["widgets"]:
+                    widget.destroy()
+
+            self.filas_carrito.clear()
+            self.actualizar_total()
+        
+            # Mostrar mensaje de éxito
+            ctk.CTkLabel(self.carrito_tabla, text="¡Venta registrada con éxito!", font=("Arial", 16, "bold"),
+                        text_color="#00A14A").grid(row=1, column=0, columnspan=4, pady=20)
+
+            # Mostrar el ticket
+            self.mostrar_ticket()
+
+        except Exception as e:
+            print(f"Error al finalizar compra: {e}")
+            if self.conn:
+                self.conn.rollback()
+            # Mostrar mensaje de error
+            ctk.CTkLabel(self.carrito_tabla, text=f"Error al registrar venta: {str(e)}", font=("Arial", 16, "bold"),
+                        text_color="#ff0000").grid(row=1, column=0, columnspan=4, pady=20)
