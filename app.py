@@ -8,7 +8,7 @@ from Login import LoginApp
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.geometry("1444x1024")
+        self.geometry("1200x800")
         self.title("Tortillería Murisol")
 
         # Barra superior

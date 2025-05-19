@@ -25,7 +25,7 @@ class VentasPage(ctk.CTkFrame):
     def crear_interfaz(self):
         main_frame = ctk.CTkFrame(self, fg_color="transparent")
         main_frame.pack(fill="both", expand=True, padx=2, pady=2)
-        main_frame.grid_columnconfigure(0, minsize=1200)
+        main_frame.grid_columnconfigure(0, minsize=600)
         main_frame.grid_columnconfigure(1, minsize=800)
         main_frame.grid_rowconfigure(0, weight=1)
 
@@ -48,7 +48,7 @@ class VentasPage(ctk.CTkFrame):
 
         # Frame derecho - CARRITO
         carrito_frame = ctk.CTkFrame(main_frame, fg_color="transparent", corner_radius=10)
-        carrito_frame.grid(row=0, column=1, sticky="nsew", padx=(0,10))
+        carrito_frame.grid(row=0, column=1, sticky="nsew", padx=(0,0))
 
         carrito_label = ctk.CTkLabel(carrito_frame, text="Carrito", font=("Arial", 20, "bold"),
                                     text_color="#B1D800", fg_color="transparent")
@@ -71,7 +71,7 @@ class VentasPage(ctk.CTkFrame):
         self.total_label.pack(pady=10)
 
         # Configuración del cuadro de ticket
-        self.cuadro_ticket = ctk.CTkFrame(self, width=450, height=600, fg_color="white", border_width=1, border_color="#B1D800")
+        self.cuadro_ticket = ctk.CTkFrame(self, width=450, height=550, fg_color="white", border_width=1, border_color="#B1D800")
         self.cuadro_ticket.pack_propagate(False)
         self.cuadro_ticket.place_forget()
         
