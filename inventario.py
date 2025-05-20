@@ -14,6 +14,21 @@ class InventarioPage(ctk.CTkFrame):
         self.cargar_datos()
 
     def setup_ui(self):
+        # Frame para el botón de actualización (encima de la tabla)
+        boton_frame = ctk.CTkFrame(self, fg_color="transparent")
+        boton_frame.pack(padx=20, pady=(10, 0), fill="x")
+
+        # Botón de actualización
+        actualizar_btn = ctk.CTkButton(
+            boton_frame,
+            text="Actualizar Inventario",
+            command=self.cargar_datos,
+            fg_color="#00A14A",
+            hover_color="#007E3A",
+            font=("Arial", 12, "bold")
+        )
+        actualizar_btn.pack(side="left", pady=5)
+
         headers = ["Producto", "Cantidad", "Precio", ""]  # Última columna para acciones
         column_widths = [250, 80, 100, 120]
 

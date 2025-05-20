@@ -113,6 +113,34 @@ INSERT INTO Venta (Total, Fecha, IDusuario) VALUES (25.00, '2025-04-29 16:30:00'
 INSERT INTO Detalles_Venta (IDventa, IDproducto, Cantidad) VALUES
 (7, 4, 1);  -- 1 x 25 = 25
 
+INSERT INTO Venta (Total, Fecha, IDusuario) VALUES (50.00, '2025-05-13 10:00:00', 2); -- IDventa = 8
+INSERT INTO Detalles_Venta (IDventa, IDproducto, Cantidad) VALUES (8, 4, 1);
+
+INSERT INTO Venta (Total, Fecha, IDusuario) VALUES (75.00, '2025-05-13 10:00:00', 2); -- IDventa = 9
+INSERT INTO Detalles_Venta (IDventa, IDproducto, Cantidad) VALUES (9, 4, 2);
+
+INSERT INTO Venta (Total, Fecha, IDusuario) VALUES (101.00, '2025-05-14 10:00:00', 3); -- IDventa = 10
+INSERT INTO Detalles_Venta (IDventa, IDproducto, Cantidad) VALUES (10, 1, 1);
+INSERT INTO Detalles_Venta (IDventa, IDproducto, Cantidad) VALUES (10, 4, 3);
+
+INSERT INTO Venta (Total, Fecha, IDusuario) VALUES (157.00, '2025-05-15 10:00:00', 2); -- IDventa = 11
+INSERT INTO Detalles_Venta (IDventa, IDproducto, Cantidad) VALUES (11, 1, 1);
+INSERT INTO Detalles_Venta (IDventa, IDproducto, Cantidad) VALUES (11, 3, 2);
+INSERT INTO Detalles_Venta (IDventa, IDproducto, Cantidad) VALUES (11, 4, 1);
+
+INSERT INTO Venta (Total, Fecha, IDusuario) VALUES (78.00, '2025-05-15 10:00:00', 2); -- IDventa = 12
+INSERT INTO Detalles_Venta (IDventa, IDproducto, Cantidad) VALUES (12, 1, 2);
+
+INSERT INTO Venta (Total, Fecha, IDusuario) VALUES (101.00, '2025-05-16 10:00:00', 1); -- IDventa = 13
+INSERT INTO Detalles_Venta (IDventa, IDproducto, Cantidad) VALUES (13, 4, 1);
+INSERT INTO Detalles_Venta (IDventa, IDproducto, Cantidad) VALUES (13, 1, 1);
+
+INSERT INTO Venta (Total, Fecha, IDusuario) VALUES (162.00, '2025-05-16 10:00:00', 3); -- IDventa = 14
+INSERT INTO Detalles_Venta (IDventa, IDproducto, Cantidad) VALUES (14, 1, 3);
+INSERT INTO Detalles_Venta (IDventa, IDproducto, Cantidad) VALUES (14, 3, 1);
+INSERT INTO Detalles_Venta (IDventa, IDproducto, Cantidad) VALUES (14, 4, 3);
+
+
 GO
 
 CREATE PROCEDURE SP_ReporteVentasPorRango

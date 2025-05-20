@@ -408,7 +408,7 @@ class VentasPage(ctk.CTkFrame):
             VALUES (?, GETDATE(), ?)
             """
             self.cursor.execute(query_venta, (total, self.id_usuario))
-        
+
             # Obtener el ID de la venta insertada
             id_venta = self.cursor.fetchone()[0]
         
@@ -421,6 +421,7 @@ class VentasPage(ctk.CTkFrame):
                     VALUES (?, ?, ?)
                     """
                     self.cursor.execute(query_detalle, (id_venta, fila["id_producto"], cantidad))
+                    self.cursor.execute("UPDATE Producto SET cantidad = cantidad - ? WHERE IDproducto = ?", (cantidad, fila["id_producto"]))
 
             # Confirmar la transacción
             self.conn.commit()
@@ -436,9 +437,6 @@ class VentasPage(ctk.CTkFrame):
             # Mostrar mensaje de éxito
             ctk.CTkLabel(self.carrito_tabla, text="¡Venta registrada con éxito!", font=("Arial", 16, "bold"),
                         text_color="#00A14A").grid(row=1, column=0, columnspan=4, pady=20)
-
-            # Mostrar el ticket
-            self.mostrar_ticket()
 
         except Exception as e:
             print(f"Error al finalizar compra: {e}")
